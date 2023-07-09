@@ -1,0 +1,86 @@
+.book-list {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px 0;
+    font-family: Arial, sans-serif;
+}
+
+.book-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 4px solid #ddd;
+    border-radius: 5px;
+}
+
+.book-item img {
+    width: 100px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.book-item h2,
+.book-item p,
+.book-item h4 {
+    width: 100%;
+    text-align: center;
+    margin: 0;
+}
+
+.btn-remove {
+    padding: 5px 10px;
+    color: #fff;
+    background-color: #f44336;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 2px solid #000000;
+}
+
+.btn-remove:hover {
+    background-color: #d32f2f;
+}
+
+.book-form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    padding: 20px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    width: 70%;
+    margin: 20px auto;
+    background-color: #f9f9f9;
+}
+
+.book-form h3 {
+    margin-bottom: 20px;
+}
+
+.book-form input {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.btn-add {
+    width: 100%;
+    padding: 10px;
+    color: #fff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+    border: 2px solid black;
+}
+
+.btn-add:hover {
+    background-color: #45a049;
+}
