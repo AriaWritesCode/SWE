@@ -9,7 +9,7 @@ function NavBar() {
     const navigate = useNavigate();
 
     // Access the global state using useContext hook
-    const { isLoggedIn, signOut } = useContext(UserContext);
+    const { isLoggedIn, signOut, isAdminLoggedIn } = useContext(UserContext);
 
     // Handler for signing out
     const handleSignOut = () => {
@@ -25,17 +25,34 @@ function NavBar() {
                 <li><Link to="/checkout" className="nav-link">Checkout</Link></li>  
 
                 {/* If the user is not logged in, show login and register links */}
-                {!isLoggedIn && (
+                {(!isLoggedIn) && (!isAdminLoggedIn) && (
                     <>
                         <li><Link to="/login" className="nav-link">Login</Link></li>  
+                        <li><Link to="/adminlogin" className="nav-link">Admin Login</Link></li>  
                         <li><Link to="/register" className="nav-link">Register</Link></li>  
                     </>
                 )}
+
+                
 
                 {/* If the user is logged in, show links for authenticated users */}
                 {isLoggedIn && (
                     <>
                         <li><Link to="/orderHistory" className="nav-link">Order History</Link></li>  
+                        <li><Link to="/return" className="nav-link">Return</Link></li>  
+                        <li><Link to="/editProfile" className="nav-link">Edit Profile</Link></li>  
+                        <li><Link to="/" onClick={handleSignOut} className="nav-link">Sign Out</Link></li>
+                    </>
+                )}
+
+                {/* If the admin is logged in, show links for authenticated users */}
+                {isAdminLoggedIn && (
+                    <>
+                        <li><Link to="/orderHistory" className="nav-link">Order History</Link></li>  
+                        <li><Link to="/manageBooks" className="nav-link">Manage Books</Link></li>  
+                        <li><Link to="/" className="nav-link">Manage Users</Link></li>  
+                        <li><Link to="/" className="nav-link">Manage Promotions</Link></li>  
+
                         <li><Link to="/return" className="nav-link">Return</Link></li>  
                         <li><Link to="/editProfile" className="nav-link">Edit Profile</Link></li>  
                         <li><Link to="/" onClick={handleSignOut} className="nav-link">Sign Out</Link></li>
