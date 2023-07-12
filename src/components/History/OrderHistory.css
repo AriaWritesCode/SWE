@@ -1,0 +1,53 @@
+.order-history {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #7e7a7a;
+    border-radius: 5px;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.order-history h2,
+.order-history h3,
+.order-history h4,
+.order-history p {
+    width: 100%;
+    text-align: center;
+}
+
+.order-history ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.order-history ul li {
+    padding: 5px;
+}
+
+.order-history hr {
+    border: 0;
+    height: 2px;
+    background-color: #F5F5DC;
+    margin: 20px 0; 
+    width: 100%;
+}
+
+.order-history .reorder-button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    color: white;
+    background-color: #4CAF50;
+    border: 1px solid black;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.order-history .reorder-button:hover {
+    background-color: #45a049;
+}
