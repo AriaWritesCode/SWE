@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; 
 import NavBar from './components/NavBar/NavBar'; 
 import HomePage from './components/HomePage/HomePage'; 
@@ -26,53 +26,30 @@ function App() {
   const [cartItems, setCartItems] = useState([]); // Array to hold items in the cart
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false); // Boolean state to check if user is logged in
 
+  const [featuredBooks, setFeaturedBooks] = useState([]);
+  const [topSellerBooks, setTopSellerBooks] = useState([]);
+
+
+  
   // Function to clear the cart
   const clearCart = () => setCartItems([]);
 
-  const [featuredBooks, setFeaturedBooks] = useState([
-    {
-      id: 1,
-      imageUrl: 'https://m.media-amazon.com/images/I/91XUENePBlL._AC_UF1000,1000_QL80_.jpg',
-      title: 'Diary of a Wimpy Kid',
-      price: 10.99,
-      author: 'Jeff Kinney',
-      summary: 'Diary of a Wimpy Kid is a series of fiction books written by the American author and cartoonist Jeff Kinney. All the main books are the journals of the main character, Greg Heffley. However this is the first book in the series.',
-      isbn: 9781419741852
-    },
-    {
-      id: 3,
-      imageUrl: 'https://upload.wikimedia.org/wikipedia/en/8/80/Diary_of_a_Wimpy_Kid_Rodrick_Rules_book_cover.png',
-      title: 'Diary of a Wimpy Kid Rodrick Rules',
-      price: 14.99,
-      author: 'Jeff Kinney',
-      summary: 'Diary of a Wimpy Kid is a series of fiction books written by the American author and cartoonist Jeff Kinney. All the main books are the journals of the main character, Greg Heffley. However, this is the second book in the series',
-      isbn: 9781419741869
-    },
-    
-    // add more featured books here...
-  ]);
+  useEffect(() => {
+    // Fetching data from API when component mounts
+    fetch("http://localhost:8080/book/getAll")
+      .then(response => response.json())
+      .then(data => {
+        // Assuming the data received is an array and you want to split it into 
+        // featuredBooks and topSellerBooks for demonstration
+        // You can modify this logic based on the actual structure and requirement
+        const featured = data.slice(0, data.length / 2);
+        const topSellers = data.slice(data.length / 2);
 
-  const [topSellerBooks, setTopSellerBooks] = useState([
-    {
-      id: 2,
-      imageUrl: 'https://images.booksense.com/images/866/064/9780439064866.jpg',
-      title: 'Harry Potter and the Chamber of Secrets',
-      price: 14.99,
-      author: 'J.K. Rowling',
-      summary: 'Harry Potter and the Chamber of Secrets is a fantasy novel written by British author J. K. Rowling and the second novel in the Harry Potter series.',
-      isbn: 9781338878936
-    },
-    {
-      id: 4,
-      imageUrl: 'https://images.booksense.com/images/595/139/9780439139595.jpg',
-      title: 'Harry Potter and the Goblet of Fire',
-      price: 15.99,
-      author: 'J.K. Rowling',
-      summary: 'Harry Potter and the Goblet of Fire is a fantasy novel written by British author J. K. Rowling and the fourth novel in the Harry Potter series.',
-      isbn: 9780439139601
-    },
-    // add more top sellers here...
-  ]);
+        setFeaturedBooks(featured);
+        setTopSellerBooks(topSellers);
+      })
+      .catch(error => console.error('Error fetching books:', error));
+  }, []);
 
   // Return the App component JSX
   return (
