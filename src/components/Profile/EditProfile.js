@@ -7,11 +7,13 @@ function EditProfile() {
     const { isLoggedIn, user, setUser } = useContext(UserContext);
     const navigate = useNavigate();
 
-    // Match the state variable names with the database object keys
     const [fullName, setFullName] = useState(user.fullName);
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [cardInfo, setCardInfo] = useState(user.cardInfo);
+    const [cvv, setCvv] = useState(user.cvv || ''); // Assuming the user object might have these fields
+    const [expirationDate, setExpirationDate] = useState(user.expirationDate || '');
+    const [state, setState] = useState(user.state || '');
     const [address, setAddress] = useState(user.address);
 
     const [error, setError] = useState('');
@@ -27,6 +29,9 @@ function EditProfile() {
             ...user, 
             fullName, 
             cardInfo, 
+            cvv,
+            expirationDate,
+            state,
             address 
         };
         
@@ -34,7 +39,6 @@ function EditProfile() {
             updatedUser.password = password;
         }
 
-        // Directly send the updated user to the /register endpoint.
         fetch('http://localhost:8080/customer/register', {
             method: 'POST',
             headers: {
@@ -42,14 +46,17 @@ function EditProfile() {
             },
             body: JSON.stringify(updatedUser)
         })
-        .then(response => response.text()) // assuming response sends back a plain text message
+        .then(response => response.text())
         .then(message => {
-            if (message.includes("Customer added")) { // Check the response message to verify the success.
+            if (message.includes("Customer added")) {
                 setIsSaved(true);
                 setFullName('');
                 setPassword('');
                 setConfirmPassword('');
                 setCardInfo('');
+                setCvv('');
+                setExpirationDate('');
+                setState('');
                 setAddress('');
                 setError('');
             } else {
@@ -61,7 +68,6 @@ function EditProfile() {
             setError(error.message || 'Failed to save. Please try again.');
         });
     }
-
 
     if (!isLoggedIn) {
         return null;
@@ -82,13 +88,22 @@ function EditProfile() {
                 <label>Confirm Password:
                     <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                 </label>
-                {error && <div className="error-message">{error}</div>}  
                 <label>Credit Card Info:
                     <input type="text" value={cardInfo} onChange={(e) => setCardInfo(e.target.value)} />
+                </label>
+                <label>CVV:
+                    <input type="text" value={cvv} onChange={(e) => setCvv(e.target.value)} />
+                </label>
+                <label>Expiration Date:
+                    <input type="text" placeholder="MM/YY" value={expirationDate} onChange={(e) => setExpirationDate(e.target.value)} />
+                </label>
+                <label>State:
+                    <input type="text" value={state} onChange={(e) => setState(e.target.value)} />
                 </label>
                 <label>Address:
                     <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} />
                 </label>
+                {error && <div className="error-message">{error}</div>}  
                 <div className="button-group">
                     <button onClick={handleSave}>Save</button>
                     <div className="additional-buttons">
