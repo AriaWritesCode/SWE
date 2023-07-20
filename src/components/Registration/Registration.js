@@ -8,6 +8,9 @@ const Registration = () => {
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const [email, setEmail] = useState('');
     const [cardInfo, setCardInfo] = useState('');
+    const [cvv, setCvv] = useState(''); 
+    const [expirationDate, setExpirationDate] = useState('');  
+    const [state, setState] = useState('');  
     const [address, setAddress] = useState('');
     const [errorMessage, setErrorMessage] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,7 +43,7 @@ const Registration = () => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ fullName, username, password, email, cardInfo, address })
+                    body: JSON.stringify({ fullName, username, password, email, cardInfo, cvv, expirationDate, state, address, })
                 })
                 .then(response => {
                     const contentType = response.headers.get('content-type');
@@ -50,19 +53,19 @@ const Registration = () => {
                                 clearForm();
                             } else {
                                 setErrorMessage(data.message || 'Registration failed');
-                                setIsSubmitting(false); // Reset if there's an error
+                                setIsSubmitting(false); 
                             }
                         });
                     } else {
                         return response.text().then(text => {
                             console.log('Unexpected response from server: ' + text);
                         });
-                        setIsSubmitting(false); // Reset if there's an error
+                        setIsSubmitting(false); 
                     }
                 })
                 .catch(error => {
                     setErrorMessage('There has been a problem with your fetch operation: ' + error.message);
-                    setIsSubmitting(false); // Reset if there's an error
+                    setIsSubmitting(false); 
                 });
             }
         } else {
@@ -104,6 +107,18 @@ const Registration = () => {
             <label>
                 Card Info
                 <input type="text" placeholder="Optional" value={cardInfo} onChange={e => setCardInfo(e.target.value)} />
+            </label>
+            <label>
+                CVV
+                <input type="text" placeholder="Optional" value={cvv} onChange={e => setCvv(e.target.value)} />
+            </label>
+            <label>
+                Expiration Date
+                <input type="text" placeholder="MM/YY" value={expirationDate} onChange={e => setExpirationDate(e.target.value)} />
+            </label>
+            <label>
+                State
+                <input type="text" placeholder="Optional" value={state} onChange={e => setState(e.target.value)} />
             </label>
             <label>
                 Address
