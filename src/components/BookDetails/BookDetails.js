@@ -1,19 +1,38 @@
-import React, { useContext } from 'react';
-import { useParams } from 'react-router-dom';
-import { UserContext } from '../../App';
+import React, { useState, useEffect } from 'react';
 import './BookDetails.css';
+import { useParams } from 'react-router-dom'; 
 
 function BookDetails() {
-    // Use UserContext to access the books
-    const { featuredBooks, topSellerBooks } = useContext(UserContext);
+    const [allBooks, setAllBooks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
+    // Extract bookID from the URL using useParams
+    const { bookID } = useParams();
 
-    // Use useParams to get book id from url
-    const { id } = useParams();
+    useEffect(() => {
+        fetch("http://localhost:8080/book/getAll")
+            .then(response => response.json())
+            .then(data => {
+                setAllBooks(data);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching books:', error);
+                setError(error);
+                setLoading(false);
+            });
+    }, []);
 
-    // Combine both arrays and find the book with the matching id
-    const book = [...featuredBooks, ...topSellerBooks].find(book => book.id === Number(id));
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error fetching book details. Please try again.</div>;
 
-    // Return JSX to display book details
+    // Find the specific book using the bookID
+    const book = allBooks.find(b => b.bookID.toString() === bookID);
+
+    if (!book) return <div>Book not found!</div>; // If book is not found
+
+    // Render the specific book details
     return (
         <div className="book-details">
             <img src={book.imageUrl} alt={book.title} className="book-image" />
@@ -21,7 +40,7 @@ function BookDetails() {
             <h3 className="book-author">Author: {book.author}</h3>
             <p className="book-price">${book.price}</p>
             <p className="book-isbn">ISBN: {book.isbn}</p>
-            <p className="book-summary">{book.summary}</p> 
+            <p className="book-summary">{book.summary}</p>
         </div>
     );
 }
