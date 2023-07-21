@@ -72,7 +72,7 @@ function App() {
             <Route path="/editProfile" element={<EditProfile />} /> 
             <Route path="/return" element={<Return />} /> 
             <Route path="/orderHistory" element={<OrderHistory />} /> 
-            <Route path="/book/:id" element={<BookDetails />} /> 
+            <Route path="/book/:bookID" element={<BookDetails />} />
             {/* Add more Routes as needed */}
           </Routes>
         </Router>
