@@ -41,3 +41,46 @@
     color: red;
     font-size: 0.8rem;
 }
+
+.login-form p:hover {
+    color: darkblue;
+}
+
+.forgot-password-form {
+    display: flex;
+    flex-direction: column;
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    align-items: center;
+}
+
+.forgot-password-form label {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.forgot-password-form input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.forgot-password-form button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 0;
+    align-self: center;
+}
+
+.forgot-password-form button:hover {
+    background-color: #45a049;
+}
