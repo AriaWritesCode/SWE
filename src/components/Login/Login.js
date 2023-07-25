@@ -3,53 +3,108 @@ import { UserContext } from '../../App';
 import { useNavigate } from 'react-router-dom';
 import './Login.css'; 
 
-// Login function component
 function Login() {
-  // Extract setIsLoggedIn from UserContext
-  // Initialize state for username and password with useState hook
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  // Initialize isSubmitted state to keep track of form submission
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [forgotPassword, setForgotPassword] = useState(false); 
+  const [email, setEmail] = useState(''); 
+  const [emailSent, setEmailSent] = useState(false); // <-- New piece of state
 
-  const navigate = useNavigate(); // Add useNavigate hook
+
+  const navigate = useNavigate();
   const { setIsLoggedIn, setUser } = useContext(UserContext);
 
-
-
   const handleSubmit = (event) => {
-          event.preventDefault(); 
+    event.preventDefault(); 
 
-          fetch('http://localhost:8080/customer/getAllCustomers')
-          .then(response => response.json())
-          .then(data => {
-              const user = data.find(user => user.username === username && user.password === password);
-              if (user) {
-                  setIsLoggedIn(true);
-                  setUser(user);
-                  navigate('/');  // Redirect to HomePage
-              } else {
-                  alert('Login failed. Please try again.');
-              }
-          })
-          .catch(error => {
-              console.error('Error:', error);
+    fetch('http://localhost:8080/customer/getAllCustomers')
+      .then(response => response.json())
+      .then(data => {
+          const user = data.find(user => user.username === username && user.password === password);
+          if (user) {
+              setIsLoggedIn(true);
+              setUser(user);
+              navigate('/'); 
+          } else {
               alert('Login failed. Please try again.');
-          });
-      };
-
-
-  // Handler for Admin Login button
-  const handleAdminLogin = () => {
-    navigate('/adminlogin'); // Redirect to AdminLoginPage
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          alert('Login failed. Please try again.');
+      });
   };
 
-  // If the form is submitted successfully, display a message
+  const handleAdminLogin = () => {
+    navigate('/adminlogin'); 
+  };
+
+  const showForgotPasswordForm = () => {
+    setForgotPassword(true);
+  }
+
+
+  const handleForgotPassword = (event) => {
+      event.preventDefault();
+
+      fetch('http://localhost:8080/customer/getAllCustomers')
+      .then(response => response.json())
+      .then(data => {
+          const user = data.find(user => user.email === email);
+          if (user) {
+              return fetch('http://localhost:8080/send-email', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                      to: email,
+                      subject: "Password Recovery",
+                      message: `Password linked to account: ${user.password}`
+                  })
+              }).then(response => {
+                  if (response.ok) {
+                      setEmailSent(true); 
+                  } else {
+                      throw new Error("Failed to send recovery email");
+                  }
+              });
+          } else {
+              alert('Email not found. Please check and try again.');
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          alert('There was an error. Please try again.');
+      });
+  }
+
   if (isSubmitted) {
     return <h2>Login Complete</h2>;
   }
 
-  // Return Login JSX
+  if (forgotPassword) {
+    if (emailSent) { 
+        return <p>Password recovery email sent!</p>;
+    }
+    return (
+      <form className="forgot-password-form" onSubmit={handleForgotPassword}>
+        <label>
+          Email*
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </label>
+        <button type="submit">Submit</button>
+      </form>
+    );
+  }
+
   return (
     <form className="login-form" onSubmit={handleSubmit}>
       <label>
@@ -76,6 +131,7 @@ function Login() {
 
       <button type="submit">Submit</button>
       <button onClick={handleAdminLogin}>Admin Login</button> 
+      <p onClick={showForgotPasswordForm} style={{cursor: 'pointer', color: 'blue', textDecoration: 'underline'}}>Forgot Password</p>
     </form>
   );
 }
