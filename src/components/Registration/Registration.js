@@ -28,51 +28,59 @@ const Registration = () => {
 
     const handleSubmit = event => {
         event.preventDefault();
-        setIsSubmitting(true); 
 
-        if (fullName && username && password && passwordConfirmation && email) {
-            if (password !== passwordConfirmation) {
-                setErrorMessage('Password and confirmation do not match.');
-                setIsSubmitting(false);
-            } else if (!/\S+@\S+\.\S+/.test(email)) {
-                setErrorMessage('Email address is not valid.');
-                setIsSubmitting(false);
+        fetch('http://localhost:8080/customer/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ fullName, username, password, email, cardInfo, cvv, expirationDate, state, address })
+        })
+        .then(response => response.text()) 
+        .then(data => {
+            if (data === "success" || data === "Customer added to database") {
+                return fetch('http://localhost:8080/customer/getAllCustomers')
             } else {
-                fetch('http://localhost:8080/customer/register', {
+                throw new Error(data);
+            }
+        })
+        .then(response => response.json())
+        .then(customers => {
+            const userExists = customers.some(customer => customer.email === email);
+            if (userExists) {
+                return fetch('http://localhost:8080/send-email', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ fullName, username, password, email, cardInfo, cvv, expirationDate, state, address, })
-                })
-                .then(response => {
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.indexOf('application/json') !== -1) {
-                        return response.json().then(data => {
-                            if (data.success) {
-                                clearForm();
-                            } else {
-                                setErrorMessage(data.message || 'Registration failed');
-                                setIsSubmitting(false); 
-                            }
-                        });
-                    } else {
-                        return response.text().then(text => {
-                            console.log('Unexpected response from server: ' + text);
-                        });
-                        setIsSubmitting(false); 
-                    }
-                })
-                .catch(error => {
-                    setErrorMessage('There has been a problem with your fetch operation: ' + error.message);
-                    setIsSubmitting(false); 
+                    body: JSON.stringify({
+                        to: email,
+                        subject: "Registration",
+                        message: "Registration Complete"
+                    })
                 });
+            } else {
+                throw new Error('User not found after registration');
             }
-        } else {
-            setErrorMessage('Please fill out all required fields.');
-            setIsSubmitting(false);
-        }
+        })
+        .then(emailResponse => emailResponse.text())
+        .then(emailData => {
+            if (emailData !== "Email Sent successfully") {
+                console.error("Error sending confirmation email: " + emailData);
+            }
+        })
+        .catch(error => {
+            setErrorMessage('There has been a problem: ' + error.message);
+        })
+        .finally(() => {
+            clearForm();
+            setIsSubmitting(true); 
+        });
     };
+
+
+
+
 
     if (isSubmitting) {
         return (
