@@ -3,7 +3,7 @@ import { UserContext } from '../../App';
 import './ManageBooks.css';
 
 function ManageBooks() {
-    const {featuredBooks, topSellerBooks, setFeaturedBooks, setTopSellerBooks} = useContext(UserContext);
+    const { featuredBooks, topSellerBooks, setFeaturedBooks, setTopSellerBooks } = useContext(UserContext);
     const [newBook, setNewBook] = useState({
         id: '',
         imageUrl: '',
@@ -16,23 +16,23 @@ function ManageBooks() {
     });
 
     const handleInputChange = e => {
-        setNewBook({...newBook, [e.target.name]: e.target.value});
+        setNewBook({ ...newBook, [e.target.name]: e.target.value });
     };
 
     const handleRadioChange = e => {
-        setNewBook({...newBook, isFeatured: e.target.value === "featured"});
+        setNewBook({ ...newBook, isFeatured: e.target.value === "featured" });
     };
 
 
     const generateBookId = () => {
-    // Combine featuredBooks and topSellerBooks into one array
-    const allBooks = [...featuredBooks, ...topSellerBooks];
+        // Combine featuredBooks and topSellerBooks into one array
+        const allBooks = [...featuredBooks, ...topSellerBooks];
 
-    // Get the highest existing book id
-    const maxId = allBooks.reduce((maxId, book) => Math.max(book.id, maxId), 0);
+        // Get the highest existing book id
+        const maxId = allBooks.reduce((maxId, book) => Math.max(book.id, maxId), 0);
 
-    // Return the next available id
-    return maxId + 1;
+        // Return the next available id
+        return maxId + 1;
     };
 
 
@@ -49,24 +49,8 @@ function ManageBooks() {
             },
             body: JSON.stringify(newBook)
         })
-        .then(response => {
-            const clone = response.clone();
-            clone.text().then(text => console.log(text));
-
-            if (!response.ok) { // If the server responds with a HTTP status outside the range 200-299
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Use the returned data to update the state
-            if (data.success) {
-                if (newBook.isFeatured) {
-                    setFeaturedBooks([...featuredBooks, newBook]);
-                } else {
-                    setTopSellerBooks([...topSellerBooks, newBook]);
-                }
-                // clear form
+            .then(response => {
+                // Always clear the form regardless of success or failure
                 setNewBook({
                     id: '',
                     imageUrl: '',
@@ -77,14 +61,30 @@ function ManageBooks() {
                     isbn: '',
                     isFeatured: true
                 });
-            } else {
-                console.log(data.message); // log error message received from server
-            }
-        })
-        .catch(error => {
-            console.error('There has been a problem with your fetch operation:', error);
-        });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    return fetch('http://localhost:8080/book/getAll');
+                }
+                throw new Error(data.message);
+            })
+            .then(response => response.json())
+            .then(data => {
+                const fetchedFeaturedBooks = data.filter(book => book.isFeatured);
+                const fetchedTopSellerBooks = data.filter(book => !book.isFeatured);
+
+                setFeaturedBooks(fetchedFeaturedBooks);
+                setTopSellerBooks(fetchedTopSellerBooks);
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
     };
+
 
 
 
@@ -119,9 +119,8 @@ function ManageBooks() {
             <div className="book-list">
                 {[...featuredBooks, ...topSellerBooks].map(book => (
                     <div key={book.id} className="book-item">
-                        <img src={book.imageUrl} alt={book.title}/>
+                        <img src={book.imageUrl} alt={book.title} />
                         <h3>{book.title}</h3>
-                        <button onClick={() => handleRemoveBook(book.id)}>Remove</button>
                     </div>
                 ))}
             </div>
