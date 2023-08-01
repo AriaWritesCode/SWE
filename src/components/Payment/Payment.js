@@ -3,7 +3,6 @@ import { UserContext } from '../../App';
 import './Payment.css'; 
 import { v4 as uuidv4 } from 'uuid';
 
-// Payment function component
 function Payment() {
     const { isLoggedIn, cartItems, clearCart } = useContext(UserContext);
     const [cardInfo, setCardInfo] = useState(''); 
@@ -11,53 +10,95 @@ function Payment() {
     const [paymentComplete, setPaymentComplete] = useState(false); 
     const [orderId, setOrderId] = useState(null);
     const [receiptItems, setReceiptItems] = useState([]);
+    const [emailToSend, setEmailToSend] = useState(''); 
+    const [sendingEmail, setSendingEmail] = useState(false);
+    const [emailSent, setEmailSent] = useState(false);
 
-    // Handler for card info change
     const handleCardInfoChange = (event) => {
         setCardInfo(event.target.value); 
     };
 
-    // Handler for shipping address change
     const handleAddressChange = (event) => {
         setAddress(event.target.value); 
     };
 
-    // Handler for form submission
     const handleSubmit = (event) => {
-        event.preventDefault(); // Prevent form from refreshing the page
-        if(cardInfo === '' || address === '') { // If any field is empty
-            alert('Please fill all the fields'); // Alert the user to fill all fields
+        event.preventDefault();
+        if(cardInfo === '' || address === '') {
+            alert('Please fill all the fields');
             return;
         }
-        // Save the cartItems in receiptItems before clearing the cart
         setReceiptItems([...cartItems]);
-        setOrderId(uuidv4()); // Generate a unique order ID
-        setPaymentComplete(true); // Update payment status to complete
-        clearCart(); // Clear the cart
+        setOrderId(uuidv4());
+        setPaymentComplete(true);
+        clearCart();
     };
 
-    // If the user is not logged in, display a message
+    const handleEmailChange = (event) => {
+        setEmailToSend(event.target.value); 
+    };
+
+    const handleEmailSubmit = (event) => {
+        event.preventDefault(); 
+        setSendingEmail(true);
+        fetch('http://localhost:8080/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                to: emailToSend,
+                subject: "Your Receipt",
+                message: `Order ID: ${orderId}, Total: $${receiptItems.reduce((total, book) => total + parseInt(book.price), 0)}`
+            })
+        })
+        .then(response => response.text())
+        .then(data => {
+            if (data === "Email Sent successfully") {
+                setEmailSent(true);
+            } else {
+                alert("Error sending the email. Please try again.");
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        })
+        .finally(() => {
+            setSendingEmail(false);
+        });
+    };
+
     if (!isLoggedIn) {
         return <div>Please login first.</div>;
     }
 
-    // Return Payment JSX
     return (
         <div className="payment">
-            {paymentComplete ? ( // If payment is complete, display the receipt
+            {paymentComplete ? (
                 <div className="payment-receipt">
                     <h2>Payment Complete</h2>
                     <hr />
                     <ul>
                         {receiptItems.map((item, index) => (
-                            <li key={index} className="receipt-item">{item.title} - ${item.price.toFixed(2)}</li> 
+                            <li key={index} className="receipt-item">{item.title} - ${item.price}</li> 
                         ))}
                     </ul>
-                    <h3>Total: ${receiptItems.reduce((total, book) => total + book.price, 0).toFixed(2)}</h3>
+                    <h3>Total: ${receiptItems.reduce((total, book) => total + parseInt(book.price), 0)}</h3>
                     <hr />
                     <h4>Order ID: {orderId}</h4>
+
+                    <div className="email-section">
+                        <h4>Send this receipt to an email</h4>
+                        <form onSubmit={handleEmailSubmit}>
+                            <input type="email" value={emailToSend} onChange={handleEmailChange} placeholder="Enter email" required />
+                            <input type="submit" value="Send" />
+                        </form>
+                        {sendingEmail && <p>Sending...</p>}
+                        {emailSent && <p>Email Sent!</p>}
+                    </div>
+
                 </div>
-            ) : ( // If payment is not complete, display the form
+            ) : (
                 <form onSubmit={handleSubmit}>
                     <label>
                         Card Info: 
